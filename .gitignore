@@ -1,0 +1,20 @@
+# Raw and final data
+data/
+results/
+
+# slurm scripts for parallelization of tasks
+slurm/
+
+# Compiled objects
+src/bin/
+src/objs/
+
+# CLion
+.idea/
+CMakeLists.txt
+cmake-build-debug/
+/cmake-build-debug-wsl/
+
+# Virtual env
+wvenv/
+venv/
