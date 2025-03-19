@@ -82,8 +82,7 @@ void testPancake(const ArgParameters &ap) {
         }
 
         if (ap.hasAlgorithm("DBBS")) {
-            DBBS<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>, MinCriterion::MinB> dbbs(true, true, 1.0,
-                                                                                                        0.5);
+            DBBS<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>, MinCriterion::MinB> dbbs(true);
             timer.StartTimer();
             dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
