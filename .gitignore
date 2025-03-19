@@ -1,6 +1,8 @@
 # Raw and final data
 data/
 results/
+maps/
+scenarios/
 
 # slurm scripts for parallelization of tasks
 slurm/

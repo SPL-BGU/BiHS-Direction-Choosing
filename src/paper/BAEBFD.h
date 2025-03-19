@@ -12,8 +12,8 @@
  * The code was not attempted on directed domains, and as such can have still bugs when dealing with them.
  */
 
-#ifndef BAE_H
-#define BAE_H
+#ifndef BAEBFD_H
+#define BAEBFD_H
 
 #include "AStarOpenClosed.h"
 #include "FPUtil.h"
@@ -22,11 +22,12 @@
 #include <cmath>
 #include <iostream>
 #include "Heuristic.h"
+#include "Graphics.h"
 #include <vector>
 #include <algorithm>
 
 template<class state>
-struct BAECompare {
+struct BAEBFDCompare {
     bool operator()(const AStarOpenClosedData<state> &i1, const AStarOpenClosedData<state> &i2) const {
         // Note that h here is used to contain the b-value of a node, which is the priority of it.
         double p1 = i1.h;
@@ -44,8 +45,8 @@ struct BAECompare {
  * B. "A Unifying View on Individual Bounds and Heuristic Inaccuracies in Bidirectional Search" by Vidal Alcázar, Pat
  * Riddle, Mike Barley (2020).
  */
-template<class state, class action, class environment, class priorityQueue = AStarOpenClosed<state, BAECompare<state>>>
-class BAE {
+template<class state, class action, class environment, class priorityQueue = AStarOpenClosed<state, BAEBFDCompare<state>>>
+class BAEBFD {
 public:
     /**
      *
@@ -54,7 +55,7 @@ public:
      * @param gcd_ Greatest common denominator between all edges. Note that for edges e.g., 1 and 1.5, the gcd is 0.5.
      */
 
-    BAE(bool alternating_ = true, double epsilon_ = 1.0, double gcd_ = 1.0) {
+    BAEBFD(bool alternating_ = true, double epsilon_ = 1.0, double gcd_ = 1.0) {
         forwardHeuristic = 0;
         backwardHeuristic = 0;
         env = 0;
@@ -64,7 +65,7 @@ public:
         alternating = alternating_;
     }
 
-    virtual ~BAE() {}
+    virtual ~BAEBFD() {}
 
     void GetPath(environment *env, const state &from, const state &to,
                  Heuristic<state> *forward, Heuristic<state> *backward, std::vector<state> &thePath);
@@ -105,8 +106,9 @@ public:
 
     int GetNumOfExpandedWithFGreaterC(float cstar);
 
-	void Draw(Graphics::Display &d) const;
-	void Draw(Graphics::Display &d, const priorityQueue &q) const;
+    void Draw(Graphics::Display &d) const;
+
+    void Draw(Graphics::Display &d, const priorityQueue &q) const;
 
 private:
 
@@ -166,28 +168,29 @@ private:
 };
 
 template<class state, class action, class environment, class priorityQueue>
-int BAE<state, action, environment, priorityQueue>::GetNumOfExpandedWithFGreaterC(float cstar) {
-    int count=0;
+int BAEBFD<state, action, environment, priorityQueue>::GetNumOfExpandedWithFGreaterC(float cstar) {
+    int count = 0;
     for (int i = 0; i < forwardQueue.size(); ++i) {
         auto &n = forwardQueue.Lookup(i);
-        if(n.where == kClosedList && n.g + forwardHeuristic->HCost(n.data, goal) > cstar){
+        if (n.where == kClosedList && n.g + forwardHeuristic->HCost(n.data, goal) > cstar) {
             count++;
         }
     }
     for (int i = 0; i < backwardQueue.size(); ++i) {
         auto &n = backwardQueue.Lookup(i);
-        if(n.where == kClosedList && n.g + backwardHeuristic->HCost(n.data, start) > cstar){
+        if (n.where == kClosedList && n.g + backwardHeuristic->HCost(n.data, start) > cstar) {
             count++;
         }
     }
     return count;
 }
+
 /**
  * Calculates the current lower-bound bases on min b in both sides, uses the gcd trick from Alcázar et al.
  * @return Current lower-bound on the search
  */
 template<class state, class action, class environment, class priorityQueue>
-double BAE<state, action, environment, priorityQueue>::getLowerBound() {
+double BAEBFD<state, action, environment, priorityQueue>::getLowerBound() {
     if (forwardQueue.OpenSize() == 0 || backwardQueue.OpenSize() == 0)
         return DBL_MAX;
 
@@ -209,9 +212,9 @@ double BAE<state, action, environment, priorityQueue>::getLowerBound() {
  * @param thePath The solution path which we will fill when the search is done
  */
 template<class state, class action, class environment, class priorityQueue>
-void BAE<state, action, environment, priorityQueue>::GetPath(environment *env, const state &from, const state &to,
-                                                             Heuristic<state> *forward, Heuristic<state> *backward,
-                                                             std::vector<state> &thePath) {
+void BAEBFD<state, action, environment, priorityQueue>::GetPath(environment *env, const state &from, const state &to,
+                                                                Heuristic<state> *forward, Heuristic<state> *backward,
+                                                                std::vector<state> &thePath) {
     if (InitializeSearch(env, from, to, forward, backward, thePath) == false)
         return;
     while (!DoSingleSearchStep(thePath)) {}
@@ -228,11 +231,11 @@ void BAE<state, action, environment, priorityQueue>::GetPath(environment *env, c
  * @return whether the start and goal are not the same (false means they are the same)
  */
 template<class state, class action, class environment, class priorityQueue>
-bool BAE<state, action, environment, priorityQueue>::InitializeSearch(environment *env, const state &from,
-                                                                      const state &to,
-                                                                      Heuristic<state> *forward,
-                                                                      Heuristic<state> *backward,
-                                                                      std::vector<state> &thePath) {
+bool BAEBFD<state, action, environment, priorityQueue>::InitializeSearch(environment *env, const state &from,
+                                                                         const state &to,
+                                                                         Heuristic<state> *forward,
+                                                                         Heuristic<state> *backward,
+                                                                         std::vector<state> &thePath) {
     this->env = env;
     forwardHeuristic = forward;
     backwardHeuristic = backward;
@@ -259,7 +262,7 @@ bool BAE<state, action, environment, priorityQueue>::InitializeSearch(environmen
  * @return Wether the search was done or not
  */
 template<class state, class action, class environment, class priorityQueue>
-bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vector<state> &thePath) {
+bool BAEBFD<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vector<state> &thePath) {
     if ((forwardQueue.OpenSize() == 0 || backwardQueue.OpenSize() == 0) && currentCost == DBL_MAX) {
         std::cerr << " !! Problem with no solution?? Expanded: " << nodesExpanded << std::endl;
         exit(0);
@@ -278,22 +281,27 @@ bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vec
         return true;
     }
 
-    // If we are not done, expand a single node based on the side-choosing policy set by the user
-    if (alternating) { // original BAE* definition
-        if (expandForward) {
-            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
-            expandForward = false;
-        } else {
-            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
-            expandForward = true;
-        }
-    } else { // BS* policy, roughly Pohl's criterion
-        if (forwardQueue.OpenSize() > backwardQueue.OpenSize())
-            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
-        else
-            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
-    }
+    double bF = forwardQueue.Lookup(forwardQueue.Peek()).h;
+    double bB = backwardQueue.Lookup(backwardQueue.Peek()).h;
 
+    if (bF < bB) {
+        Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
+    } else if (bF > bB) {
+        Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+    } else {
+        // If we are not done, expand a single node based on the side-choosing policy set by the user
+        if (alternating) { // original BAE* definition
+            if (expandForward) {
+                Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
+                expandForward = false;
+            } else {
+                Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+                expandForward = true;
+            }
+        } else { // Only Forward
+            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+        }
+    }
     return false;
 }
 
@@ -307,10 +315,10 @@ bool BAE<state, action, environment, priorityQueue>::DoSingleSearchStep(std::vec
  * @param source The node we started from, opposite of target
  */
 template<class state, class action, class environment, class priorityQueue>
-void BAE<state, action, environment, priorityQueue>::Expand(priorityQueue &current, priorityQueue &opposite,
-                                                            Heuristic<state> *heuristic,
-                                                            Heuristic<state> *reverse_heuristic,
-                                                            const state &target, const state &source) {
+void BAEBFD<state, action, environment, priorityQueue>::Expand(priorityQueue &current, priorityQueue &opposite,
+                                                               Heuristic<state> *heuristic,
+                                                               Heuristic<state> *reverse_heuristic,
+                                                               const state &target, const state &source) {
     uint64_t nextID;
     bool success = false;
     // This does lazy nipping, which means we do not we do not expand a node that was already closed in the opposite
@@ -350,7 +358,7 @@ void BAE<state, action, environment, priorityQueue>::Expand(priorityQueue &curre
         double edgeCost = env->GCost(parentData.data, succ);
 
         // ignore states with greater cost than best solution
-        if (fgreatereq(parentData.g + edgeCost+heuristic->HCost(succ, target), currentCost))
+        if (fgreatereq(parentData.g + edgeCost + heuristic->HCost(succ, target), currentCost))
             continue;
 
         switch (loc) {
@@ -423,8 +431,7 @@ void BAE<state, action, environment, priorityQueue>::Expand(priorityQueue &curre
  * @deprecated
  */
 template<class state, class action, class environment, class priorityQueue>
-void BAE<state, action, environment, priorityQueue>::Nip(const state &s, priorityQueue &reverse)
-{
+void BAEBFD<state, action, environment, priorityQueue>::Nip(const state &s, priorityQueue &reverse) {
     assert(!"Not using this code currently - the correct implementation of 'remove' is unclear from BS*");
     // At this point parent has been removed from open
     // Need to find any successors that have a parent id of parent & recursively remove them from open
@@ -469,55 +476,43 @@ void BAE<state, action, environment, priorityQueue>::Nip(const state &s, priorit
         }
     }
 }
+
 template<class state, class action, class environment, class priorityQueue>
-void BAE<state, action, environment, priorityQueue>::Draw(Graphics::Display &disp) const
-{
-	Draw(disp, forwardQueue);
-	Draw(disp, backwardQueue);
+void BAEBFD<state, action, environment, priorityQueue>::Draw(Graphics::Display &disp) const {
+    Draw(disp, forwardQueue);
+    Draw(disp, backwardQueue);
 }
 
 template<class state, class action, class environment, class priorityQueue>
-void BAE<state, action, environment, priorityQueue>::Draw(Graphics::Display &disp, const priorityQueue &q) const
-{
-	double transparency = 1.0;
-	if (q.size() == 0)
-		return;
-	uint64_t top = -1;
-	//	double minf = 1e9, maxf = 0;
-	if (q.OpenSize() > 0)
-	{
-		top = q.Peek();
-	}
-	for (unsigned int x = 0; x < q.size(); x++)
-	{
-		const auto &data = q.Lookat(x);
-		if (x == top)
-		{
-			env->SetColor(1.0, 1.0, 0.0, transparency);
-			env->Draw(disp, data.data);
-		}
-		else if ((data.where == kOpenList) && (data.reopened))
-		{
-			env->SetColor(0.0, 0.5, 0.5, transparency);
-			env->Draw(disp, data.data);
-		}
-		else if (data.where == kOpenList)
-		{
-			env->SetColor(0.0, 1.0, 0.0, transparency);
-			env->Draw(disp, data.data);
-		}
-		else if ((data.where == kClosedList) && (data.reopened))
-		{
-			env->SetColor(0.5, 0.0, 0.5, transparency);
-			env->Draw(disp, data.data);
-		}
-		else if (data.where == kClosedList)
-		{
-			if (&q != &forwardQueue)
-				env->SetColor(0.25, 0.5, 1.0, transparency);
-			else
-				env->SetColor(1.0, 0.0, 0.0, transparency);
-			env->Draw(disp, data.data);
+void BAEBFD<state, action, environment, priorityQueue>::Draw(Graphics::Display &disp, const priorityQueue &q) const {
+    double transparency = 1.0;
+    if (q.size() == 0)
+        return;
+    uint64_t top = -1;
+    //	double minf = 1e9, maxf = 0;
+    if (q.OpenSize() > 0) {
+        top = q.Peek();
+    }
+    for (unsigned int x = 0; x < q.size(); x++) {
+        const auto &data = q.Lookat(x);
+        if (x == top) {
+            env->SetColor(1.0, 1.0, 0.0, transparency);
+            env->Draw(disp, data.data);
+        } else if ((data.where == kOpenList) && (data.reopened)) {
+            env->SetColor(0.0, 0.5, 0.5, transparency);
+            env->Draw(disp, data.data);
+        } else if (data.where == kOpenList) {
+            env->SetColor(0.0, 1.0, 0.0, transparency);
+            env->Draw(disp, data.data);
+        } else if ((data.where == kClosedList) && (data.reopened)) {
+            env->SetColor(0.5, 0.0, 0.5, transparency);
+            env->Draw(disp, data.data);
+        } else if (data.where == kClosedList) {
+            if (&q != &forwardQueue)
+                env->SetColor(0.25, 0.5, 1.0, transparency);
+            else
+                env->SetColor(1.0, 0.0, 0.0, transparency);
+            env->Draw(disp, data.data);
 
 //			if (data.parentID == x)
 //				env->SetColor(1.0, 0.5, 0.5, transparency);
@@ -525,10 +520,10 @@ void BAE<state, action, environment, priorityQueue>::Draw(Graphics::Display &dis
 //				env->SetColor(1.0, 0.0, 0.0, transparency);
 //			//			}
 //			env->Draw(disp, data.data);
-		}
-	}
-	env->SetColor(1.0, 0.5, 1.0, 0.5);
-	env->Draw(disp, goal);
+        }
+    }
+    env->SetColor(1.0, 0.5, 1.0, 0.5);
+    env->Draw(disp, goal);
 }
 
-#endif //BAE_H
+#endif //BAEBFD_H
