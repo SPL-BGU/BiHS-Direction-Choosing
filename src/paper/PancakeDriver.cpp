@@ -21,7 +21,7 @@ int getGap(const std::string &h) {
 
 void testPancake(const ArgParameters &ap) {
     int gap = getGap(ap.heuristic);
-    printf("[D] Pancake-%d GAP-%d\n", N, gap);
+    printf("[D] domain: pancake; heuristic: GAP-%d\n", N, gap);
     PancakePuzzle<N> env(gap);
     PancakePuzzleState<N> start;
     PancakePuzzleState<N> goal;
@@ -42,30 +42,41 @@ void testPancake(const ArgParameters &ap) {
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-a; solution %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-a; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
 
         if (ap.hasAlgorithm("BAE-bfd-a")) {
-            BAEBFD<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae;
+            BAEBFD<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae(BaeDirStrategy::BFD_Alternating);
             timer.StartTimer();
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-bfd-a; solution %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-bfd-a; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
 
         if (ap.hasAlgorithm("BAE-bfd-f")) {
-            BAEBFD<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae(false);
+            BAEBFD<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae(BaeDirStrategy::BFD_Forward);
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-bfd-f; solution %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-bfd-f; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("BAE-bfd-b")) {
+            BAEBFD<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae(BaeDirStrategy::BFD_Backward);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: BAE-bfd-b; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
@@ -76,7 +87,7 @@ void testPancake(const ArgParameters &ap) {
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = bae.GetSolLen();
-            printf("[R] alg: TLBAE; solution %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: TLBAE; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
@@ -87,11 +98,10 @@ void testPancake(const ArgParameters &ap) {
             dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: dbbs; solution %1.0f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+            printf("[R] alg: dbbs; solution: %1.0f; expanded: %llu; fabove: 0; time: %1.6fs\n",
                    solLen, dbbs.GetNodesExpanded(),
                    timer.GetElapsedTime());
         }
-
     }
 }
 }

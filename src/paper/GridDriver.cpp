@@ -6,6 +6,7 @@
 #include "BAEBFD.h"
 #include "DBBS/DBBS.h"
 #include "TwoLevelBAE.h"
+#include "TemplateAStar.h"
 
 
 namespace direction_grid {
@@ -26,17 +27,25 @@ void testGrid(const ArgParameters &ap) {
     xyLoc start, goal;
 
     std::cout << "[D] domain: " << ap.domain << "; map: " << getFileName(ap.map) << std::endl;
+    std::set<int> buckets;
 
     for (int i: ap.instances) {
-        if (i < 0 || i >= s.GetNumExperiments()) {
+        if (i < 0 || i >= s.GetNumExperiments() || s.GetNthExperiment(i).GetDistance() == 0) {
             continue;
         }
 
-        std::cout << "[I] ID: " << i << "; start: " << start << "; goal: " << goal << std::endl;
+        if (buckets.find(s.GetNthExperiment(i).GetBucket()) != buckets.end()) {
+            continue;
+        } else {
+            buckets.insert(s.GetNthExperiment(i).GetBucket());
+        }
+
         start.x = s.GetNthExperiment(i).GetStartX();
         start.y = s.GetNthExperiment(i).GetStartY();
         goal.x = s.GetNthExperiment(i).GetGoalX();
         goal.y = s.GetNthExperiment(i).GetGoalY();
+
+        std::cout << "[I] ID: " << i << "; start: " << start << "; goal: " << goal << std::endl;
 
         if (ap.hasAlgorithm("BAE-a")) {
             BAE<xyLoc, tDirection, MapEnvironment> bae(true, 1.0, 0.5);
@@ -44,29 +53,40 @@ void testGrid(const ArgParameters &ap) {
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-a; solution %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-a; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
 
         if (ap.hasAlgorithm("BAE-bfd-a")) {
-            BAEBFD<xyLoc, tDirection, MapEnvironment> bae(true, 1.0, 0.5);
+            BAEBFD<xyLoc, tDirection, MapEnvironment> bae(BaeDirStrategy::BFD_Alternating, 1.0, 0.5);
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-bfd-a; solution %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-bfd-a; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
 
         if (ap.hasAlgorithm("BAE-bfd-f")) {
-            BAEBFD<xyLoc, tDirection, MapEnvironment> bae(false, 1.0, 0.5);
+            BAEBFD<xyLoc, tDirection, MapEnvironment> bae(BaeDirStrategy::BFD_Forward, 1.0, 0.5);
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: BAE-bfd-f; solution %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: BAE-bfd-f; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("BAE-bfd-f")) {
+            BAEBFD<xyLoc, tDirection, MapEnvironment> bae(BaeDirStrategy::BFD_Backward, 1.0, 0.5);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: BAE-bfd-b; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
@@ -77,7 +97,7 @@ void testGrid(const ArgParameters &ap) {
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = bae.GetSolLen();
-            printf("[R] alg: TLBAE; solution %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: TLBAE; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
@@ -88,7 +108,7 @@ void testGrid(const ArgParameters &ap) {
             dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: dbbs; solution %1.1f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+            printf("[R] alg: dbbs; solution: %1.1f; expanded: %llu; fabove: 0; time: %1.6fs\n",
                    solLen, dbbs.GetNodesExpanded(),
                    timer.GetElapsedTime());
         }
