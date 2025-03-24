@@ -26,6 +26,13 @@
 #include <vector>
 #include <algorithm>
 
+enum class BaeDirStrategy {
+    Alternating,
+    BFD_Alternating,
+    BFD_Forward,
+    BFD_Backward
+};
+
 template<class state>
 struct BAEBFDCompare {
     bool operator()(const AStarOpenClosedData<state> &i1, const AStarOpenClosedData<state> &i2) const {
@@ -55,14 +62,14 @@ public:
      * @param gcd_ Greatest common denominator between all edges. Note that for edges e.g., 1 and 1.5, the gcd is 0.5.
      */
 
-    BAEBFD(bool alternating_ = true, double epsilon_ = 1.0, double gcd_ = 1.0) {
+    BAEBFD(BaeDirStrategy dirStrat_ = BaeDirStrategy::Alternating, double epsilon_ = 1.0, double gcd_ = 1.0) {
         forwardHeuristic = 0;
         backwardHeuristic = 0;
         env = 0;
         ResetNodeCount();
         epsilon = epsilon_;
         gcd = gcd_;
-        alternating = alternating_;
+        dirStrat = dirStrat_;
     }
 
     virtual ~BAEBFD() {}
@@ -161,7 +168,7 @@ private:
     double epsilon; // Cost of the least-cost edge
     double gcd; // Greatest common denominator between all edges
 
-    bool alternating; // Is the side-choosing policy alternating or not
+    BaeDirStrategy dirStrat; // Is the side-choosing policy alternating or not
     bool expandForward; // Is the current expansion direction forward. This is used for the alternating policy
 
     std::unordered_map<double, int> counts;
@@ -284,22 +291,28 @@ bool BAEBFD<state, action, environment, priorityQueue>::DoSingleSearchStep(std::
     double bF = forwardQueue.Lookup(forwardQueue.Peek()).h;
     double bB = backwardQueue.Lookup(backwardQueue.Peek()).h;
 
-    if (bF < bB) {
-        Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
-    } else if (bF > bB) {
-        Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
-    } else {
-        // If we are not done, expand a single node based on the side-choosing policy set by the user
-        if (alternating) { // original BAE* definition
-            if (expandForward) {
+    if (dirStrat == BaeDirStrategy::Alternating) {
+        if (expandForward) {
+            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
+            expandForward = false;
+        } else {
+            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+            expandForward = true;
+        }
+    } else { //BFD
+        if (bF < bB) {
+            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
+        } else if (bF > bB) {
+            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+        } else {
+            if (dirStrat == BaeDirStrategy::BFD_Forward ||
+                (dirStrat == BaeDirStrategy::BFD_Alternating && expandForward)) {
                 Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
                 expandForward = false;
             } else {
                 Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
                 expandForward = true;
             }
-        } else { // Only Forward
-            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
         }
     }
     return false;
