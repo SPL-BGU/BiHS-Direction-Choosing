@@ -149,14 +149,12 @@ void TwoLevelBAE<state, action, environment>::GetPath(environment *env_, const s
 
 template<class state, class action, class environment>
 bool TwoLevelBAE<state, action, environment>::DoSingleSearchStep(std::vector<state> &thePath) {
-    // Fix Focal - Check the current lower bound vs the older one, update it if needed, and put waiting into ready
-    // Check if solution is found and extract it
+    UpdateReadyQueue();
+
     if (currentCost <= cLowerBound) {
         //solution found
         return true;
     }
-
-    UpdateReadyQueue();
 
     if (expandForward) {
         Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
@@ -252,7 +250,17 @@ TwoLevelBAE<state, action, environment>::Expand(BDOpenClosedBAE<state, BTLBCompa
 
         switch (loc) {
             case kClosed: {
-                if (fless(parentData.g + edgeCost, childData.g)) {
+                uint64_t oppositeID;
+                auto oppositeLoc = opposite.Lookup(env->GetStateHash(succ), oppositeID);
+                if (fless(parentData.g + edgeCost, childData.g) && oppositeLoc != kClosed) {
+                    uint64_t currLoopID = nextID;
+                    while (currLoopID != 0) {
+                        std::cout << currLoopID << ", ";
+                        currLoopID = current.Lookup(currLoopID).parentID;
+                    }
+                    std::cout << std::endl;
+                    std::cout << "Non optimal g" << std::endl;
+                    std::cerr << "Non optimal g" << std::endl;
                     current.Lookup(childID).parentID = nextID;
                     current.Lookup(childID).g = current.Lookup(nextID).g + edgeCost;
                     double childF = current.Lookup(childID).g + current.Lookup(childID).h;
