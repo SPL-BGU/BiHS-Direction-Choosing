@@ -58,6 +58,17 @@ void testGrid(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
+        if (ap.hasAlgorithm("BAE-p")) {
+            BAE<xyLoc, tDirection, MapEnvironment> bae(false, 1.0, 0.5);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: BAE-p; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
         if (ap.hasAlgorithm("BAE-bfd-a")) {
             BAEBFD<xyLoc, tDirection, MapEnvironment> bae(BaeDirStrategy::BFD_Alternating, 1.0, 0.5);
             timer.StartTimer();

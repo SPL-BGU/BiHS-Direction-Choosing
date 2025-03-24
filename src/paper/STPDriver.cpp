@@ -34,6 +34,17 @@ void testSTP(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
+        if (ap.hasAlgorithm("BAE-p")) {
+            BAE<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> bae(false);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: BAE-p; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
         if (ap.hasAlgorithm("BAE-bfd-a")) {
             BAEBFD<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> bae(BaeDirStrategy::BFD_Alternating);
             timer.StartTimer();
