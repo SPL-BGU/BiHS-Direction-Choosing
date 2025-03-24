@@ -195,7 +195,6 @@ void TwoLevelBAE<state, action, environment>::UpdateReadyQueue() {
     while (minf <= GetCurrentBBound()) {
         cLowerBound = minf;
 
-
         // Move nextF layer into ready
         while (forwardQueue.OpenWaitingSize() > 0 && forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).g +
                                                      forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).h ==
@@ -217,6 +216,12 @@ void TwoLevelBAE<state, action, environment>::UpdateReadyQueue() {
                   backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).g +
                   backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).h;
         minf = min(ff, fb);
+    }
+
+    // If both waiting are empty, minf is DBL_MAX, but if the bound need to increase, it will never enter the loop thus
+    // not increasing the bound. This verifies that it will increase if needed regardless of waiting.
+    if (minf == DBL_MAX) {
+        cLowerBound = GetCurrentBBound();
     }
 }
 
