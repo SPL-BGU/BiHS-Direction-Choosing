@@ -62,3 +62,4 @@ SRC_CPP = \
 	paper/Driver.cpp \
 	paper/PancakeDriver.cpp \
 	paper/GridDriver.cpp \
+	paper/STPDriver.cpp \
