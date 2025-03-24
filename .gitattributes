@@ -1,3 +1,4 @@
 *.h linguist-language=C++
 *.inc linguist-language=Makefile
-
+maps/* linguist-vendored
+scenarios/* linguist-vendored
