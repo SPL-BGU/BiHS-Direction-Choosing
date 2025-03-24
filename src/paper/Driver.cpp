@@ -2,6 +2,7 @@
 #include "ArgParameters.h"
 #include "PancakeDriver.h"
 #include "GridDriver.h"
+#include "STPDriver.h"
 
 void printRunLine(int argc, char *argv[]) {
     std::cout << "[L] ";
@@ -18,6 +19,8 @@ int main(int argc, char *argv[]) {
         direction_pancake::testPancake(ap);
     } else if (ap.domain == "grid") {
         direction_grid::testGrid(ap);
+    } else if (ap.domain == "stp") {
+        direction_stp::testSTP(ap);
     } else {
         std::cerr << "Error: Unknown domain: " << ap.domain << std::endl;
         exit(EXIT_FAILURE);
