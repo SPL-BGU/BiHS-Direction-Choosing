@@ -21,7 +21,7 @@ int getGap(const std::string &h) {
 
 void testPancake(const ArgParameters &ap) {
     int gap = getGap(ap.heuristic);
-    printf("[D] domain: pancake; heuristic: GAP-%d\n", N, gap);
+    printf("[D] domain: pancake; heuristic: GAP-%d\n", gap);
     PancakePuzzle<N> env(gap);
     PancakePuzzleState<N> start;
     PancakePuzzleState<N> goal;
