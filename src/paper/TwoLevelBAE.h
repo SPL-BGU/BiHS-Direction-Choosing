@@ -209,10 +209,10 @@ void TwoLevelBAE<state, action, environment>::UpdateReadyQueue() {
         }
 
         // Check next f value
-        auto ff = forwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
+        ff = forwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
                   forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).g +
                   forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).h;
-        auto fb = backwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
+        fb = backwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
                   backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).g +
                   backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).h;
         minf = min(ff, fb);
@@ -221,7 +221,7 @@ void TwoLevelBAE<state, action, environment>::UpdateReadyQueue() {
     // If both waiting are empty, minf is DBL_MAX, but if the bound need to increase, it will never enter the loop thus
     // not increasing the bound. This verifies that it will increase if needed regardless of waiting.
     if (minf == DBL_MAX) {
-        cLowerBound = GetCurrentBBound();
+        cLowerBound = max(cLowerBound, GetCurrentBBound());
     }
 }
 
