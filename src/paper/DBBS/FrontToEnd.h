@@ -86,7 +86,7 @@ protected:
 
     bool CheckSolution() { return fgreatereq(C, currentCost); }
 
-    bool ReconstructSolution(std::vector<state> &thePath) {
+    void ReconstructSolution(std::vector<state> &thePath) {
         std::vector<state> pFor, pBack;
         ExtractPath(backwardQueue, middleNode, pBack);
         ExtractPath(forwardQueue, middleNode, pFor);
