@@ -36,11 +36,12 @@ struct BTLBCompare { // F-comparator
 template<class state, class action, class environment>
 class TwoLevelBAE {
 public:
-    TwoLevelBAE(double gcd_ = 1.0) {
+    TwoLevelBAE(bool alternating_ = true, double gcd_ = 1.0) {
         forwardHeuristic = 0;
         backwardHeuristic = 0;
         env = 0;
         gcd = gcd_;
+        alternating = alternating_;
         Reset();
     }
 
@@ -92,6 +93,7 @@ private:
     Heuristic<state> *backwardHeuristic;
     environment *env;
 
+    bool alternating;
     double gcd;
 
     double cLowerBound;
@@ -156,12 +158,19 @@ bool TwoLevelBAE<state, action, environment>::DoSingleSearchStep(std::vector<sta
         return true;
     }
 
-    if (expandForward) {
-        Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
-        expandForward = false;
+    if (alternating) {
+        if (expandForward) {
+            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
+            expandForward = false;
+        } else {
+            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+            expandForward = true;
+        }
     } else {
-        Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
-        expandForward = true;
+        if (forwardQueue.OpenSize() > backwardQueue.OpenSize())
+            Expand(backwardQueue, forwardQueue, backwardHeuristic, forwardHeuristic, start, goal);
+        else
+            Expand(forwardQueue, backwardQueue, forwardHeuristic, backwardHeuristic, goal, start);
     }
 
     // If the solution lead to emptying one of the Open, which will lead to an infinite loop.
@@ -210,11 +219,11 @@ void TwoLevelBAE<state, action, environment>::UpdateReadyQueue() {
 
         // Check next f value
         ff = forwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
-                  forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).g +
-                  forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).h;
+             forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).g +
+             forwardQueue.Lookup(forwardQueue.Peek(kOpenWaiting)).h;
         fb = backwardQueue.OpenWaitingSize() == 0 ? DBL_MAX :
-                  backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).g +
-                  backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).h;
+             backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).g +
+             backwardQueue.Lookup(backwardQueue.Peek(kOpenWaiting)).h;
         minf = min(ff, fb);
     }
 

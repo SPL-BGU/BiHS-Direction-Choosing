@@ -79,13 +79,24 @@ void testSTP(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
-        if (ap.hasAlgorithm("TLBAE")) {
+        if (ap.hasAlgorithm("TLBAE-a")) {
             TwoLevelBAE<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> bae;
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = bae.GetSolLen();
-            printf("[R] alg: TLBAE; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: TLBAE-a; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("TLBAE-p")) {
+            TwoLevelBAE<MNPuzzleState<4, 4>, slideDir, MNPuzzle<4, 4>> bae(false);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = bae.GetSolLen();
+            printf("[R] alg: TLBAE-p; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }

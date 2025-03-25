@@ -92,13 +92,24 @@ void testPancake(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
-        if (ap.hasAlgorithm("TLBAE")) {
+        if (ap.hasAlgorithm("TLBAE-a")) {
             TwoLevelBAE<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae;
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = bae.GetSolLen();
-            printf("[R] alg: TLBAE; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: TLBAE-a; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("TLBAE-p")) {
+            TwoLevelBAE<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>> bae(false);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = bae.GetSolLen();
+            printf("[R] alg: TLBAE-p; solution: %1.0f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }

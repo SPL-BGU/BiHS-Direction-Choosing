@@ -102,13 +102,24 @@ void testGrid(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
-        if (ap.hasAlgorithm("TLBAE")) {
-            TwoLevelBAE<xyLoc, tDirection, MapEnvironment> bae(0.5);
+        if (ap.hasAlgorithm("TLBAE-a")) {
+            TwoLevelBAE<xyLoc, tDirection, MapEnvironment> bae(true, 0.5);
             timer.StartTimer();
             bae.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = bae.GetSolLen();
-            printf("[R] alg: TLBAE; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+            printf("[R] alg: TLBAE-a; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
+                   solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("TLBAE-p")) {
+            TwoLevelBAE<xyLoc, tDirection, MapEnvironment> bae(false, 0.5);
+            timer.StartTimer();
+            bae.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = bae.GetSolLen();
+            printf("[R] alg: TLBAE-p; solution: %1.1f; expanded: %llu; fabove: %d; time: %1.6fs\n",
                    solLen, bae.GetNodesExpanded(), bae.GetNumOfExpandedWithFGreaterC(solLen),
                    timer.GetElapsedTime());
         }
