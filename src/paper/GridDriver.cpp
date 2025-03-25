@@ -124,13 +124,24 @@ void testGrid(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
-        if (ap.hasAlgorithm("DBBS")) {
+        if (ap.hasAlgorithm("DBBS-a")) {
             DBBS<xyLoc, tDirection, MapEnvironment, MinCriterion::MinB> dbbs(true, true, 1.0, 0.5);
             timer.StartTimer();
             dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: dbbs; solution: %1.1f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+            printf("[R] alg: dbbs-a; solution: %1.1f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+                   solLen, dbbs.GetNodesExpanded(),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("DBBS-p")) {
+            DBBS<xyLoc, tDirection, MapEnvironment, MinCriterion::MinB> dbbs(false, true, 1.0, 0.5);
+            timer.StartTimer();
+            dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: dbbs-p; solution: %1.1f; expanded: %llu; fabove: 0; time: %1.6fs\n",
                    solLen, dbbs.GetNodesExpanded(),
                    timer.GetElapsedTime());
         }

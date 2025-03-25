@@ -114,13 +114,24 @@ void testPancake(const ArgParameters &ap) {
                    timer.GetElapsedTime());
         }
 
-        if (ap.hasAlgorithm("DBBS")) {
+        if (ap.hasAlgorithm("DBBS-a")) {
             DBBS<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>, MinCriterion::MinB> dbbs(true);
             timer.StartTimer();
             dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
             timer.EndTimer();
             double solLen = env.GetPathLength(solutionPath);
-            printf("[R] alg: dbbs; solution: %1.0f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+            printf("[R] alg: dbbs-a; solution: %1.0f; expanded: %llu; fabove: 0; time: %1.6fs\n",
+                   solLen, dbbs.GetNodesExpanded(),
+                   timer.GetElapsedTime());
+        }
+
+        if (ap.hasAlgorithm("DBBS-p")) {
+            DBBS<PancakePuzzleState<N>, PancakePuzzleAction, PancakePuzzle<N>, MinCriterion::MinB> dbbs(false);
+            timer.StartTimer();
+            dbbs.GetPath(&env, start, goal, &env, &env, solutionPath);
+            timer.EndTimer();
+            double solLen = env.GetPathLength(solutionPath);
+            printf("[R] alg: dbbs-p; solution: %1.0f; expanded: %llu; fabove: 0; time: %1.6fs\n",
                    solLen, dbbs.GetNodesExpanded(),
                    timer.GetElapsedTime());
         }
