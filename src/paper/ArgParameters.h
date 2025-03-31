@@ -111,19 +111,21 @@ public:
     }
 
     static void help() {
-        std::cout << "Usage: program [options]\n"
-                  << "Options:\n"
-                  << "  --help                   Show this help message and exit\n"
-                  << "  -d, --domain <name>      Specify the domain\n"
-                  << "  -h, --heuristic <name>   Specify the heuristic\n"
-                  << "  -m, --map <file>         Specify the map file\n"
-                  << "  -s, --scenario <file>    Specify the scenario file\n"
-                  << "  -i, --instances <list>   Specify instances (single or range, e.g., 1 2 5-10)\n"
-                  << "  -a, --algorithms <list>  Specify algorithms (space-separated)\n"
-                  << "\nExamples:\n"
-                  << "  program -d grid -h od -i 0-1000 -a BAE-a TLBAE -m maps/orz302d.map -s scenarios/orz302d.map.scen\n"
-                  << "  program -d pancake -h 0 -i 0-100 -a BAE-a TLBAE\n";
-        exit(EXIT_SUCCESS);
+        std::cout << "Usage: program [OPTIONS]\n\n";
+        std::cout << "Options:\n";
+        std::cout << "  -d, --domain <DOMAIN>         Specify the domain.\n";
+        std::cout << "  -h, --heuristic <HEURISTIC>   Specify the heuristic.\n";
+        std::cout << "  -m, --map <FILE>              Specify the map file if domain is grid.\n";
+        std::cout << "  -s, --scenario <FILE>         Specify the scenario file.\n";
+        std::cout << "  -i, --instances <LIST>        Specify instances (e.g., 1 2 5-10).\n";
+        std::cout << "  -a, --algorithms <LIST>       Specify algorithms (space-separated).\n";
+        std::cout << "  --help                        Show this help message and exit.\n\n";
+        std::cout << "Examples:\n";
+        std::cout << "  program -d grid -h od -i 0-1000 -a BAE-a TLBAE ";
+        std::cout << "-m maps/orz302d.map -s scenarios/orz302d.map.scen\n";
+        std::cout << "  program -d pancake -h 0 -i 0-100 -a BAE-a TLBAE\n";
+
+        std::exit(EXIT_SUCCESS);
     }
 
     std::string domain;
