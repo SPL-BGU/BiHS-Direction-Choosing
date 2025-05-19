@@ -1,4 +1,4 @@
-<h1 align="center">Direction-selection Policies in BAE*</h1>
+<h1 align="center">Position Paper: On the Impact of Direction-Selection in BAE*</h1>
 <p align="center">
   <a href=""><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 </p>
@@ -58,4 +58,4 @@ The new code for the paper can be found in
 [src/paper]().<br/>
 As said before, all of these rely on HOG2 which can be found [here](https://github.com/nathansttt/hog2). 
 
-If you find our work interesting or the repo useful, please consider citing this paper:
+If you find our work interesting or the repo useful, please consider citing this paper.
