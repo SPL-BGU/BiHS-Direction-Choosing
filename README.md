@@ -58,4 +58,14 @@ The new code for the paper can be found in
 [src/paper](src/paper).<br/>
 As said before, all of these rely on HOG2 which can be found [here](https://github.com/nathansttt/hog2). 
 
-If you find our work interesting or the repo useful, please consider citing this paper.
+If you find our work interesting or the repo useful, please consider citing this paper:
+```
+@inproceedings{shperberg2025position,
+  title={Position Paper: On the Impact of Direction-Selection in BAE},
+  author={Shperberg, Shahaf and Siag, Lior and Sturtevant, Nathan and Felner, Ariel},
+  booktitle={Proceedings of the International Symposium on Combinatorial Search},
+  volume={18},
+  pages={241--245},
+  year={2025}
+}
+```
