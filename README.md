@@ -54,8 +54,7 @@ The final products are saved into results. The LaTex tables were manually create
 If you encounter any issue, find a bug, or need help, feel free to open an issue or contact Lior (the maintainer).
 
 ## Citation and Code Attribution
-The new code for the paper can be found in
-[src/paper](src/paper).<br/>
+The new code for the paper can be found in [src/paper](src/paper). The code inside DBBS/ was written by Vidal Alcázar and can be found [here](https://github.com/valcazar/hog2/tree/PDB-refactor/apps/bidirectional).<br/>
 As said before, all of these rely on HOG2 which can be found [here](https://github.com/nathansttt/hog2). 
 
 If you find our work interesting or the repo useful, please consider citing this paper:
